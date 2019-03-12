@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter_app/file_database.dart';
+import 'package:flutter_app/idatabase.dart';
 import 'package:flutter_app/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -21,9 +23,10 @@ class RandomWords extends StatefulWidget {
 }
 
 class RandomWordsState extends State<RandomWords> {
+  final IDatabase _database = new FileDatabase();
   final _suggestions = <WordPair>[];
-  final _saved = new Set<WordPair>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  var _saved = new Set<WordPair>();
 
   Widget _buildSuggestions() {
     return ListView.builder(
@@ -58,6 +61,8 @@ class RandomWordsState extends State<RandomWords> {
             } else {
               _saved.add(wordPair);
             }
+
+            _database.save(toStringList(_saved));
           });
         },
       ),
