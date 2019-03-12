@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter_app/word_pair_extension.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() => runApp(MyApp());
 
@@ -43,21 +45,26 @@ class RandomWordsState extends State<RandomWords> {
     final bool alreadySaved = _saved.contains(wordPair);
     return ListTile(
       title: Text(
-        wordPair.asPascalCase,
+        format(wordPair),
         style: _biggerFont,
       ),
-      trailing: new Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red[800] : null,
+      trailing: new IconButton(
+        icon: new Icon(alreadySaved ? Icons.favorite : Icons.favorite_border,
+            color: alreadySaved ? Colors.red[800] : null),
+        onPressed: () {
+          setState(() {
+            if (alreadySaved) {
+              _saved.remove(wordPair);
+            } else {
+              _saved.add(wordPair);
+            }
+          });
+        },
       ),
       onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(wordPair);
-          } else {
-            _saved.add(wordPair);
-          }
-        });
+        Fluttertoast.showToast(
+          msg: "Pressed ${format(wordPair)}",
+        );
       },
     );
   }
@@ -67,10 +74,10 @@ class RandomWordsState extends State<RandomWords> {
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
           final Iterable<ListTile> tiles = _saved.map(
-            (WordPair pair) {
+            (WordPair wordPair) {
               return new ListTile(
                 title: new Text(
-                  pair.asPascalCase,
+                  format(wordPair),
                   style: _biggerFont,
                 ),
               );
@@ -85,7 +92,7 @@ class RandomWordsState extends State<RandomWords> {
             appBar: new AppBar(
               title: const Text("Saved"),
             ),
-          body: new ListView(children: divided),
+            body: new ListView(children: divided),
           );
         },
       ),
