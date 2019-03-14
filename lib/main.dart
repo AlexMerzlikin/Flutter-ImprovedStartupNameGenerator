@@ -106,6 +106,15 @@ class RandomWordsState extends State<RandomWords> {
 
   @override
   Widget build(BuildContext context) {
+    var data = _database.load();
+    data.then((list) => {
+          {
+            list.forEach((entry) => print(entry)),
+            _saved.addAll(list.map((entry) =>
+                new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
+          }
+        });
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Startup Name Generator"),

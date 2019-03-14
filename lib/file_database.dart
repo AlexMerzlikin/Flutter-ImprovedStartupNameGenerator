@@ -9,7 +9,7 @@ class FileDatabase implements IDatabase {
     try {
       final file = await _localFile;
       String contents = await file.readAsString();
-      return contents.split('\n');
+      return contents.trim().split('\n');
     } catch (e) {
       return null;
     }
@@ -20,7 +20,7 @@ class FileDatabase implements IDatabase {
     final file = await _localFile;
 
     var sink = file.openWrite();
-    data.forEach((entry) => sink.write(entry));
+    data.forEach((entry) => sink.write(entry + "\n"));
     sink.close();
 
     return file;
