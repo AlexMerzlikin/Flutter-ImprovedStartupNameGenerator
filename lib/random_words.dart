@@ -26,7 +26,7 @@ class RandomWordsState extends State<RandomWords> {
 
           final index = i ~/ 2;
           if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+            _suggestions.addAll(generateWordPairs().take(10));
           }
           return _buildRow(_suggestions[index]);
         });
@@ -63,8 +63,6 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   void _pushSaved() {
-    _loadSaved();
-
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
@@ -75,6 +73,11 @@ class RandomWordsState extends State<RandomWords> {
                   format(wordPair),
                   style: _biggerFont,
                 ),
+                onTap: () {
+                  setState(() {
+                    _remove(wordPair);
+                  });
+                },
               );
             },
           );
@@ -94,13 +97,24 @@ class RandomWordsState extends State<RandomWords> {
     );
   }
 
-  void _loadSaved() {
+  void _remove(WordPair wordPair) {
+    if (_saved.contains(wordPair)) {
+      _saved.remove(wordPair);
+    }
+    _database.save(toStringList(_saved));
+  }
+
+  Future<void> _loadSaved() {
     var data = _database.load();
-    data.then((list) => {
+    Set<WordPair> loadedData;
+
+    return data.then((list) => {
           {
-            list.forEach((entry) => print(entry)),
-            _saved.addAll(list.map((entry) =>
-                new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
+            loadedData = list
+                .map((entry) =>
+                    new WordPair(entry.split(" ")[0], entry.split(" ")[1]))
+                .toSet(),
+            _saved = _saved.union(loadedData),
           }
         });
   }
@@ -111,7 +125,11 @@ class RandomWordsState extends State<RandomWords> {
       appBar: AppBar(
         title: Text("Startup Name Generator"),
         actions: <Widget>[
-          new IconButton(icon: const Icon(Icons.list), onPressed: _pushSaved)
+          new IconButton(
+              icon: const Icon(Icons.list),
+              onPressed: () {
+                _loadSaved().then((onValue) => _pushSaved());
+              }),
         ],
       ),
       body: _buildSuggestions(),
