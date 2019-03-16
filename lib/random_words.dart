@@ -1,5 +1,4 @@
 import 'package:english_words/english_words.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/file_database.dart';
 import 'package:flutter_app/idatabase.dart';
@@ -64,6 +63,8 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   void _pushSaved() {
+    _loadSaved();
+
     Navigator.of(context).push(
       new MaterialPageRoute<void>(
         builder: (BuildContext context) {
@@ -93,8 +94,7 @@ class RandomWordsState extends State<RandomWords> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void _loadSaved() {
     var data = _database.load();
     data.then((list) => {
           {
@@ -103,7 +103,10 @@ class RandomWordsState extends State<RandomWords> {
                 new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
           }
         });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Startup Name Generator"),
