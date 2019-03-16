@@ -5,7 +5,7 @@ import 'package:flutter_app/database/idatabase.dart';
 class FileDatabase implements IDatabase {
 
   @override
-  Future<List<String>> load() async{
+  Future<Iterable<String>> load() async{
     try {
       final file = await _localFile;
       String contents = await file.readAsString();
@@ -16,7 +16,7 @@ class FileDatabase implements IDatabase {
   }
 
   @override
-  Future<File> save(List<String> data) async {
+  Future<File> save(Iterable<String> data) async {
     final file = await _localFile;
 
     var sink = file.openWrite();
