@@ -133,6 +133,7 @@ class RandomWordsState extends State<RandomWords> {
         title: Text("Startup Name Generator"),
         actions: <Widget>[
           new IconButton(
+              tooltip: "Saved",
               icon: const Icon(Icons.list),
               onPressed: () {
                 _pushSaved();
