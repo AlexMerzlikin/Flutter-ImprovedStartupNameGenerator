@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_app/idatabase.dart';
+import 'package:flutter_app/database/idatabase.dart';
 
 class FileDatabase implements IDatabase {
 

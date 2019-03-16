@@ -1,8 +1,8 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/file_database.dart';
-import 'package:flutter_app/idatabase.dart';
-import 'package:flutter_app/word_pair_extension.dart';
+import 'package:flutter_app/database/file_database.dart';
+import 'package:flutter_app/database/idatabase.dart';
+import 'package:flutter_app/random_words/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class RandomWords extends StatefulWidget {
@@ -106,15 +106,11 @@ class RandomWordsState extends State<RandomWords> {
 
   Future<void> _loadSaved() {
     var data = _database.load();
-    Set<WordPair> loadedData;
 
     return data.then((list) => {
           {
-            loadedData = list
-                .map((entry) =>
-                    new WordPair(entry.split(" ")[0], entry.split(" ")[1]))
-                .toSet(),
-            _saved = _saved.union(loadedData),
+            _saved.addAll(list.map((entry) =>
+                new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
           }
         });
   }
