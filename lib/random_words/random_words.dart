@@ -6,20 +6,18 @@ import 'package:flutter_app/random_words/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class RandomWords extends StatefulWidget {
-  Future<void> _loadSaved() {
-    var data = _database.load();
+  Future<Iterable<String>> _loadSaved() {
+    return _database.load();
+  }
 
-    return data.then((list) => {
+  @override
+  RandomWordsState createState() {
+    _loadSaved().then((list) => {
           {
             _saved.addAll(list.map((entry) =>
                 new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
           }
         });
-  }
-
-  @override
-  RandomWordsState createState() {
-    _loadSaved();
     return new RandomWordsState();
   }
 }
