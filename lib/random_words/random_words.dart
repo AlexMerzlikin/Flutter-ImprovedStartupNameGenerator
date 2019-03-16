@@ -5,6 +5,10 @@ import 'package:flutter_app/database/idatabase.dart';
 import 'package:flutter_app/random_words/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+final _saved = new Set<WordPair>();
+final _biggerFont = const TextStyle(fontSize: 18.0);
+final IDatabase _database = new FileDatabase();
+
 class RandomWords extends StatefulWidget {
   Future<Iterable<String>> _loadSaved() {
     return _database.load();
@@ -12,12 +16,8 @@ class RandomWords extends StatefulWidget {
 
   @override
   RandomWordsState createState() {
-    _loadSaved().then((list) => {
-          {
-            _saved.addAll(list.map((entry) =>
-                new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
-          }
-        });
+    _loadSaved().then(
+        (list) => {_saved.addAll(list.map((entry) => toWordPair(entry)))});
     return new RandomWordsState();
   }
 }
@@ -26,10 +26,6 @@ class SavedWords extends StatefulWidget {
   @override
   SavedWordsState createState() => new SavedWordsState();
 }
-
-final _saved = new Set<WordPair>();
-final _biggerFont = const TextStyle(fontSize: 18.0);
-final IDatabase _database = new FileDatabase();
 
 void _remove(WordPair wordPair) {
   if (_saved.contains(wordPair)) {
@@ -71,6 +67,9 @@ class SavedWordsState extends State<SavedWords> {
         setState(() {
           _remove(wordPair);
         });
+        Fluttertoast.showToast(
+          msg: "Deleted ${format(wordPair)}",
+        );
       },
     );
   }
@@ -107,12 +106,7 @@ class RandomWordsState extends State<RandomWords> {
             color: alreadySaved ? Colors.red[800] : null),
         onPressed: () {
           setState(() {
-            if (alreadySaved) {
-              _saved.remove(wordPair);
-            } else {
-              _saved.add(wordPair);
-            }
-
+            alreadySaved ? _saved.remove(wordPair) : _saved.add(wordPair);
             _database.save(toStringList(_saved));
           });
         },
