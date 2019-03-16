@@ -6,8 +6,22 @@ import 'package:flutter_app/random_words/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class RandomWords extends StatefulWidget {
+  Future<void> _loadSaved() {
+    var data = _database.load();
+
+    return data.then((list) => {
+          {
+            _saved.addAll(list.map((entry) =>
+                new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
+          }
+        });
+  }
+
   @override
-  RandomWordsState createState() => new RandomWordsState();
+  RandomWordsState createState() {
+    _loadSaved();
+    return new RandomWordsState();
+  }
 }
 
 class SavedWords extends StatefulWidget {
@@ -120,17 +134,6 @@ class RandomWordsState extends State<RandomWords> {
     );
   }
 
-  Future<void> _loadSaved() {
-    var data = _database.load();
-
-    return data.then((list) => {
-          {
-            _saved.addAll(list.map((entry) =>
-                new WordPair(entry.split(" ")[0], entry.split(" ")[1])))
-          }
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,7 +143,7 @@ class RandomWordsState extends State<RandomWords> {
           new IconButton(
               icon: const Icon(Icons.list),
               onPressed: () {
-                _loadSaved().then((onValue) => _pushSaved());
+                _pushSaved();
               }),
         ],
       ),
