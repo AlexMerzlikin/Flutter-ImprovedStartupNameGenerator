@@ -4,6 +4,8 @@ import 'package:flutter_app/database/idatabase.dart';
 
 class FileDatabase implements IDatabase {
 
+  final String fileName = "database.txt";
+
   @override
   Future<Iterable<String>> load() async{
     try {
@@ -28,8 +30,8 @@ class FileDatabase implements IDatabase {
 
   Future<File> get _localFile async {
     final path = await _localPath;
-    print("$path/database.txt");
-    return File("$path/database.txt");
+    print("$path/$fileName");
+    return File("$path/$fileName");
   }
 
   Future<String> get _localPath async {
