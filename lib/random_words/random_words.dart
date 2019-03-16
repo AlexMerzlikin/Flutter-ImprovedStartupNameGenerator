@@ -10,29 +10,80 @@ class RandomWords extends StatefulWidget {
   RandomWordsState createState() => new RandomWordsState();
 }
 
+class SavedWords extends StatefulWidget {
+  @override
+  SavedWordsState createState() => new SavedWordsState();
+}
+
+final _saved = new Set<WordPair>();
+final _biggerFont = const TextStyle(fontSize: 18.0);
+final IDatabase _database = new FileDatabase();
+
+void _remove(WordPair wordPair) {
+  if (_saved.contains(wordPair)) {
+    _saved.remove(wordPair);
+  }
+  _database.save(toStringList(_saved));
+}
+
+class SavedWordsState extends State<SavedWords> {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: const Text("Saved"),
+      ),
+      body: _buildSaved(),
+    );
+  }
+
+  Widget _buildSaved() {
+    return ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+        separatorBuilder: (context, index) => Divider(
+              color: Colors.grey[300],
+            ),
+        itemCount: _saved.length,
+        itemBuilder: (BuildContext context, int index) =>
+            _buildSavedRow(index));
+  }
+
+  Widget _buildSavedRow(int i) {
+    final wordPair = _saved.toList()[i];
+    return new ListTile(
+      title: new Text(
+        format(wordPair),
+        style: _biggerFont,
+      ),
+      onLongPress: () {
+        setState(() {
+          _remove(wordPair);
+        });
+      },
+    );
+  }
+}
+
 class RandomWordsState extends State<RandomWords> {
-  final IDatabase _database = new FileDatabase();
   final _suggestions = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-  var _saved = new Set<WordPair>();
 
   Widget _buildSuggestions() {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
-        itemBuilder: (context, i) {
-          if (i.isOdd) {
-            return Divider();
-          }
-
-          final index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return _buildRow(_suggestions[index]);
-        });
+        itemBuilder: (BuildContext context, int index) => _buildRow(index));
   }
 
-  Widget _buildRow(WordPair wordPair) {
+  Widget _buildRow(int i) {
+    if (i.isOdd) {
+      return Divider();
+    }
+
+    final index = i ~/ 2;
+    if (index >= _suggestions.length) {
+      _suggestions.addAll(generateWordPairs().take(10));
+    }
+
+    final wordPair = _suggestions[index];
     final bool alreadySaved = _saved.contains(wordPair);
     return ListTile(
       title: Text(
@@ -63,45 +114,10 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          final Iterable<ListTile> tiles = _saved.map(
-            (WordPair wordPair) {
-              return new ListTile(
-                title: new Text(
-                  format(wordPair),
-                  style: _biggerFont,
-                ),
-                onTap: () {
-                  setState(() {
-                    _remove(wordPair);
-                  });
-                },
-              );
-            },
-          );
-          final List<Widget> divided = ListTile.divideTiles(
-            context: context,
-            tiles: tiles,
-          ).toList();
-
-          return new Scaffold(
-            appBar: new AppBar(
-              title: const Text("Saved"),
-            ),
-            body: new ListView(children: divided),
-          );
-        },
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SavedWords()),
     );
-  }
-
-  void _remove(WordPair wordPair) {
-    if (_saved.contains(wordPair)) {
-      _saved.remove(wordPair);
-    }
-    _database.save(toStringList(_saved));
   }
 
   Future<void> _loadSaved() {
