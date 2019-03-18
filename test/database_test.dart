@@ -6,7 +6,7 @@ void main() {
     test("File should be saved", () {
       final database = new FileDatabase();
       final file = database.save(["1"]);
-      expect(file != null, true);
+      file.then((f) => expect(f != null, true));
     });
 
     test("Data should be loaded", () {
