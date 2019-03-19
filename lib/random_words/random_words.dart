@@ -2,10 +2,10 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/random_words/Saved/saved_controller.dart';
 import 'package:flutter_app/random_words/Suggestions/suggestions_controller.dart';
+import 'package:flutter_app/random_words/style_constants.dart';
 import 'package:flutter_app/random_words/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-final _biggerFont = const TextStyle(fontSize: 18.0);
 final SuggestionsController _suggestions = new SuggestionsController();
 final SavedController _saved = new SavedController();
 
@@ -55,7 +55,7 @@ class SavedWordsState extends State<SavedWords> {
     return new ListTile(
       title: new Text(
         format(wordPair),
-        style: _biggerFont,
+        style: biggerFont,
       ),
       onLongPress: () {
         setState(() {
@@ -91,7 +91,7 @@ class RandomWordsState extends State<RandomWords> {
     return ListTile(
       title: Text(
         format(wordPair),
-        style: _biggerFont,
+        style: biggerFont,
       ),
       trailing: new IconButton(
         icon: new Icon(alreadySaved ? Icons.favorite : Icons.favorite_border,
