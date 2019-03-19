@@ -1,23 +1,24 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/database/file_database.dart';
-import 'package:flutter_app/database/idatabase.dart';
+import 'package:flutter_app/random_words/Saved/saved_controller.dart';
+import 'package:flutter_app/random_words/Suggestions/suggestions_controller.dart';
 import 'package:flutter_app/random_words/word_pair_extension.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-final _saved = new Set<WordPair>();
 final _biggerFont = const TextStyle(fontSize: 18.0);
-final IDatabase _database = new FileDatabase();
+final SuggestionsController _suggestions = new SuggestionsController();
+final SavedController _saved = new SavedController();
 
 class RandomWords extends StatefulWidget {
   Future<Iterable<String>> _loadSaved() {
-    return _database.load();
+    return _saved.load();
   }
 
   @override
   RandomWordsState createState() {
-    _loadSaved().then(
-        (list) => {_saved.addAll(list.map((entry) => toWordPair(entry)))});
+    _loadSaved().then((list) => {
+          _saved.addAll(list),
+        });
     return new RandomWordsState();
   }
 }
@@ -25,13 +26,6 @@ class RandomWords extends StatefulWidget {
 class SavedWords extends StatefulWidget {
   @override
   SavedWordsState createState() => new SavedWordsState();
-}
-
-void _remove(WordPair wordPair) {
-  if (_saved.contains(wordPair)) {
-    _saved.remove(wordPair);
-  }
-  _database.save(toStringList(_saved));
 }
 
 class SavedWordsState extends State<SavedWords> {
@@ -57,7 +51,7 @@ class SavedWordsState extends State<SavedWords> {
   }
 
   Widget _buildSavedRow(int i) {
-    final wordPair = _saved.toList()[i];
+    final wordPair = _saved.saved.toList()[i];
     return new ListTile(
       title: new Text(
         format(wordPair),
@@ -65,7 +59,7 @@ class SavedWordsState extends State<SavedWords> {
       ),
       onLongPress: () {
         setState(() {
-          _remove(wordPair);
+          _saved.remove(wordPair);
         });
         Fluttertoast.showToast(
           msg: "Deleted ${format(wordPair)}",
@@ -76,8 +70,6 @@ class SavedWordsState extends State<SavedWords> {
 }
 
 class RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-
   Widget _buildSuggestions() {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
@@ -91,10 +83,10 @@ class RandomWordsState extends State<RandomWords> {
 
     final index = i ~/ 2;
     if (index >= _suggestions.length) {
-      _suggestions.addAll(generateWordPairs().take(10));
+      _suggestions.generatePairs(10);
     }
 
-    final wordPair = _suggestions[index];
+    final wordPair = _suggestions.suggestions[index];
     final bool alreadySaved = _saved.contains(wordPair);
     return ListTile(
       title: Text(
@@ -106,8 +98,7 @@ class RandomWordsState extends State<RandomWords> {
             color: alreadySaved ? Colors.red[800] : null),
         onPressed: () {
           setState(() {
-            alreadySaved ? _saved.remove(wordPair) : _saved.add(wordPair);
-            _database.save(toStringList(_saved));
+            _onSaveClick(alreadySaved, wordPair);
           });
         },
       ),
@@ -117,6 +108,10 @@ class RandomWordsState extends State<RandomWords> {
         );
       },
     );
+  }
+
+  void _onSaveClick(bool alreadySaved, WordPair wordPair) {
+    alreadySaved ? _saved.remove(wordPair) : _saved.add(wordPair);
   }
 
   void _pushSaved() {
